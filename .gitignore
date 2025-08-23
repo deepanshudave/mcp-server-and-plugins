@@ -1,0 +1,12 @@
+# Environment variables
+.env
+
+# Logs
+logs/
+
+# Virtual environment
+mcp-server-env/
+
+# OS / Readme
+.DS_Store
+README.md
