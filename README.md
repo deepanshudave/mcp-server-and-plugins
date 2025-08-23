@@ -1,69 +1,81 @@
-Here's the complete list of URLs to test the MCP server application:
+# MCP Server and Plugins
 
-  Server Information Endpoints
+This project is a Modular MCP server with FastAPI supporting multiple clients including Weather functionality.
 
-  1. Root Endpoint
+## Quick Start
 
-  GET http://localhost:8008/
-  Returns server info and loaded clients
+### 1. Start the server:
+```bash
+./scripts/start.sh
+```
 
-  2. Health Check
+### 2. Run endpoint tests:
+```bash
+./test/check_endpoints.sh
+```
 
-  GET http://localhost:8008/health
-  Returns server health status and client states
+### 3. Stop the server:
+```bash
+./scripts/stop.sh
+```
 
-  3. List All Tools
+## API Endpoints
 
-  GET http://localhost:8008/tools
-  Returns all available tools with their schemas
+### Server Information Endpoints
 
-  Weather Tool Endpoints
+**1. Root Endpoint**
+```
+GET http://localhost:8008/
+```
+Returns server info and loaded clients
 
-  4. Get Current Weather
+**2. Health Check**
+```
+GET http://localhost:8008/health
+```
+Returns server health status and client states
 
-  POST http://localhost:8008/tools/get_current_weather
-  Content-Type: application/json
+**3. List All Tools**
+```
+GET http://localhost:8008/tools
+```
+Returns all available tools with their schemas
 
-  {
-    "location": "London"
-  }
+### Weather Tool Endpoints
 
-  5. Get Weather Forecast
+**4. Get Current Weather**
+```
+POST http://localhost:8008/tools/get_current_weather
+Content-Type: application/json
 
-  POST http://localhost:8008/tools/get_weather_forecast
-  Content-Type: application/json
+{
+  "location": "London"
+}
+```
 
-  {
-    "location": "New York",
-    "days": 3
-  }
+**5. Get Weather Forecast**
+```
+POST http://localhost:8008/tools/get_weather_forecast
+Content-Type: application/json
 
-  6. Get Weather Alerts
+{
+  "location": "New York",
+  "days": 3
+}
+```
 
-  POST http://localhost:8008/tools/get_weather_alerts
-  Content-Type: application/json
+**6. Get Weather Alerts**
+```
+POST http://localhost:8008/tools/get_weather_alerts
+Content-Type: application/json
 
-  {
-    "location": "Tokyo"
-  }
+{
+  "location": "Tokyo"
+}
+```
 
-  cURL Test Commands
+## Manual Browser Testing
 
-Quick Test Script Usage
-
-  1. Start the server:
-  cd /Users/deepanshu/Documents/code/gen-ai/mcp-server-and-plugins
-  ./scripts/start.sh
-
-  2. Run all endpoint tests:
-  ./test/check_endpoints.sh
-
-  3. Stop the server:
-  ./scripts/stop.sh
-
-Manual Browser Testing
-
-  - Visit http://localhost:8008/docs for interactive testing
-  - Use the Swagger UI to test all endpoints with different parameters
-  - Check real-time weather data for various cities
-
+- Visit `http://localhost:8008/docs` for interactive testing
+- Use the Swagger UI to test all endpoints with different parameters
+- Check real-time weather data for various cities
