@@ -159,6 +159,7 @@ All weather data is provided by OpenWeatherMap."""
             response = await client.get(url, params=params)
             response.raise_for_status()
             data = response.json()
+            self.logger.info(f"Current weather API response for {location}: {data}")
         
         weather_data = WeatherData(
             location=f"{data['name']}, {data['sys']['country']}",
@@ -202,6 +203,7 @@ All weather data is provided by OpenWeatherMap."""
             response = await client.get(url, params=params)
             response.raise_for_status()
             data = response.json()
+            self.logger.info(f"Weather forecast API response for {location}: {data}")
         
         unit_symbol = "°C"  # Always Celsius
         

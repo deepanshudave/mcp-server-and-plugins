@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+      "weather-server": {
+        "command": "<PATH_TO_CODEBASE>/mcp-server-and-plugins/mcp-server-env/bin/python",
+        "args": ["<PATH_TO_CODEBASE>/mcp-server-and-plugins/mcp_http_bridge.py"],
+        "env": {
+          "SERVER_URL": "http://localhost:8008"
+        }
+      }
+    }
+}
