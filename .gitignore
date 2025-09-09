@@ -1,6 +1,16 @@
 # Environment variables
 .env
 
+# Build
+build/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.cache/
+
 # Logs
 logs/
 

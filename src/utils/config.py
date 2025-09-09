@@ -8,7 +8,11 @@ import logging
 
 def load_environment() -> None:
     """Load environment variables from .env file."""
-    load_dotenv()
+    # Use absolute path to .env file to work from any directory
+    import os
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    env_path = os.path.join(project_root, ".env")
+    load_dotenv(env_path)
 
 
 def get_env_var(key: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
