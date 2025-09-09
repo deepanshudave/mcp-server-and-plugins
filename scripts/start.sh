@@ -12,6 +12,9 @@ echo "🧹 Cleaning up any existing processes..."
 lsof -ti:8008 | xargs kill -9 2>/dev/null || true
 sleep 1
 
+# Export Python cache prefix for centralized __pycache__
+export PYTHONPYCACHEPREFIX=.cache/pycache
+
 # Use virtual environment python directly
 echo "🚀 Starting server on port 8008..."
 ./mcp-server-env/bin/python run.py

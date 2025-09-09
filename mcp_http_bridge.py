@@ -36,8 +36,11 @@ class MCPHttpBridge:
     def __init__(self):
         """Initialize the bridge."""
         self.server_url = os.getenv("SERVER_URL", "http://localhost:8008")
+        self.api_key = os.getenv("API_KEY")
         self.server_process = None
         logger.info(f"MCP HTTP Bridge initialized, server URL: {self.server_url}")
+        if not self.api_key:
+            logger.warning("No API_KEY environment variable found")
     
     async def start_http_server(self):
         """Start the HTTP server if not already running."""
@@ -136,8 +139,12 @@ class MCPHttpBridge:
     async def _handle_list_tools(self, request_id: Optional[str]) -> Dict[str, Any]:
         """Handle tools list request."""
         try:
+            headers = {}
+            if self.api_key:
+                headers["X-API-Key"] = self.api_key
+            
             async with httpx.AsyncClient() as client:
-                response = await client.get(f"{self.server_url}/tools")
+                response = await client.get(f"{self.server_url}/tools", headers=headers)
                 response.raise_for_status()
                 tools_data = response.json()
             
@@ -171,11 +178,15 @@ class MCPHttpBridge:
             return self._error_response(request_id, -32602, "Missing tool name")
         
         try:
+            headers = {"Content-Type": "application/json"}
+            if self.api_key:
+                headers["X-API-Key"] = self.api_key
+            
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     f"{self.server_url}/tools/{tool_name}",
                     json=arguments,
-                    headers={"Content-Type": "application/json"}
+                    headers=headers
                 )
                 response.raise_for_status()
                 result_data = response.json()

@@ -2,7 +2,10 @@
     "mcpServers": {
       "weather-server": {
         "command": "<PATH_TO_CODEBASE>/mcp-server-and-plugins/mcp-server-env/bin/python",
-        "args": ["-m", "src.mcp_server"]
+        "args": ["-m", "src.mcp_server"],
+        "env": {
+          "API_KEY": "api_mcp_native_3f8a2c9d1e6b4f7a8c5d2e9f1a3b6c8d"
+        }
       }
     }
 }

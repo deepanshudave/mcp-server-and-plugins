@@ -1,12 +1,13 @@
 """FastAPI application for MCP server."""
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import logging
 
 from .utils.config import load_environment, setup_logging
 from .utils.client_loader import load_all_clients
+from .middleware.auth import validate_client_request
 
 # Initialize logging
 setup_logging()
@@ -76,9 +77,9 @@ async def list_tools():
 
 
 @app.post("/tools/{tool_name}")
-async def execute_tool(tool_name: str, arguments: Dict[str, Any]):
+async def execute_tool(tool_name: str, arguments: Dict[str, Any], client_name: str = Depends(validate_client_request)):
     """Execute a specific tool."""
-    logger.info(f"Executing tool: {tool_name} with arguments: {arguments}")
+    logger.info(f"Client '{client_name}' executing tool: {tool_name} with arguments: {arguments}")
     
     # Find the client that has this tool
     for client in clients.values():

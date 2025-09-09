@@ -3,6 +3,8 @@
 import asyncio
 import json
 import sys
+import os
+import logging
 from typing import Any, Dict, List, Optional
 
 from mcp.server.models import InitializationOptions
@@ -22,6 +24,9 @@ from .types.common import ClientConfig
 from .utils.config import load_environment, setup_logging
 from .utils.mcp_client_loader import load_all_mcp_clients
 
+# Import API key validation from middleware
+from .middleware.auth import validate_api_key
+
 
 class PureMCPServer:
     """Pure MCP server implementation."""
@@ -30,6 +35,24 @@ class PureMCPServer:
         """Initialize the MCP server."""
         load_environment()
         setup_logging()
+        
+        # Get logger after setup_logging()
+        self.logger = logging.getLogger(__name__)
+        
+        # Initialize API key authentication
+        self.api_key = os.getenv("API_KEY")
+        self.client_name = None
+        
+        if self.api_key:
+            self.client_name = validate_api_key(self.api_key)
+            if self.client_name:
+                self.logger.info(f"MCP Native Server initialized for client: {self.client_name}")
+            else:
+                self.logger.error(f"Invalid API key provided: {self.api_key[:8]}***")
+                raise ValueError("Invalid API key provided")
+        else:
+            self.logger.warning("No API key provided - running without authentication")
+            self.client_name = "Anonymous MCP Client"
         
         self.server = Server("mcp-server")
         self.clients: Dict[str, Any] = {}
@@ -62,20 +85,28 @@ class PureMCPServer:
         @self.server.call_tool()
         async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
             """Handle tool execution."""
+            # Log tool execution with client identification
+            self.logger.info(f"Client '{self.client_name}' executing tool: {name} with arguments: {arguments}")
+            
             # Execute tool through clients
             for client in self.clients.values():
                 if client.has_tool(name):
-                    result = await client.execute_tool(name, arguments)
-                    
-                    # Convert result to MCP format
-                    content = []
-                    for item in result.content:
-                        if item["type"] == "text":
-                            content.append(TextContent(type="text", text=item["text"]))
-                    
-                    return content
+                    try:
+                        result = await client.execute_tool(name, arguments)
+                        
+                        # Convert result to MCP format
+                        content = []
+                        for item in result.content:
+                            if item["type"] == "text":
+                                content.append(TextContent(type="text", text=item["text"]))
+                        
+                        return content
+                    except Exception as e:
+                        self.logger.error(f"Error executing tool {name} for client '{self.client_name}': {e}")
+                        return [TextContent(type="text", text=f"Tool execution failed: {str(e)}")]
             
             # Tool not found
+            self.logger.warning(f"Tool '{name}' not found for client '{self.client_name}'")
             return [TextContent(type="text", text=f"Tool '{name}' not found")]
         
         @self.server.list_resources()
