@@ -10,7 +10,6 @@ from .types import WeatherConfig
 # OpenWeatherMap API Constants
 DEFAULT_BASE_URL = "https://api.openweathermap.org/data/2.5"
 DEFAULT_GEO_URL = "https://api.openweathermap.org/geo/1.0"
-DEFAULT_ONECALL_URL = "https://api.openweathermap.org/data/3.0"
 
 
 def get_env_var(key: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
@@ -31,6 +30,5 @@ def get_weather_config() -> WeatherConfig:
     return WeatherConfig(
         api_key=get_env_var("OPENWEATHERMAP_API_KEY", required=True),
         base_url=DEFAULT_BASE_URL,
-        geo_url=DEFAULT_GEO_URL,
-        onecall_url=DEFAULT_ONECALL_URL
+        geo_url=DEFAULT_GEO_URL
     )

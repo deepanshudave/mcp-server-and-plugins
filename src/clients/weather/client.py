@@ -6,7 +6,7 @@ import logging
 
 from ...core.base_client import BaseClient
 from ...types.common import ToolDefinition, ToolResult, ClientConfig
-from .types import WeatherConfig, WeatherData, WeatherForecast, WeatherAlert
+from .types import WeatherConfig, WeatherData, WeatherForecast
 
 
 class WeatherClient(BaseClient):
@@ -28,7 +28,6 @@ class WeatherClient(BaseClient):
         self.api_key = weather_config.api_key
         self.base_url = weather_config.base_url
         self.geo_url = weather_config.geo_url
-        self.onecall_url = weather_config.onecall_url
     
     def _initialize_tools(self) -> None:
         """Initialize weather-specific tools."""
@@ -81,20 +80,6 @@ class WeatherClient(BaseClient):
             }
         ))
         
-        self.register_tool(ToolDefinition(
-            name="get_weather_alerts",
-            description="Get weather alerts for a specific location",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "location": {
-                        "type": "string",
-                        "description": "The location to get alerts for"
-                    }
-                },
-                "required": ["location"]
-            }
-        ))
     
     def get_help_text(self) -> str:
         """Get help text for weather tools."""
@@ -111,14 +96,9 @@ Available Tools:
    - Same location options as current weather
    - Temperature always in Celsius
 
-3. get_weather_alerts(location)
-   - Get active weather alerts for a location
-   - Returns severe weather warnings and advisories
-
 Examples:
 - get_current_weather("New York")
 - get_weather_forecast("London,UK", 5)
-- get_weather_alerts("Miami,FL")
 
 All weather data is provided by OpenWeatherMap."""
     
@@ -129,8 +109,6 @@ All weather data is provided by OpenWeatherMap."""
                 return await self._get_current_weather(arguments)
             elif tool_name == "get_weather_forecast":
                 return await self._get_weather_forecast(arguments)
-            elif tool_name == "get_weather_alerts":
-                return await self._get_weather_alerts(arguments)
             else:
                 return ToolResult(
                     content=[{"type": "text", "text": f"Unknown tool: {tool_name}"}],
@@ -227,55 +205,3 @@ All weather data is provided by OpenWeatherMap."""
         
         return ToolResult(content=[{"type": "text", "text": result_text}])
     
-    async def _get_weather_alerts(self, arguments: Dict[str, Any]) -> ToolResult:
-        """Get weather alerts for a location."""
-        location = arguments["location"]
-        
-        # First get coordinates for the location
-        geocoding_url = f"{self.geo_url}/direct"
-        params = {
-            "q": location,
-            "limit": 1,
-            "appid": self.api_key
-        }
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.get(geocoding_url, params=params)
-            response.raise_for_status()
-            geo_data = response.json()
-            
-            if not geo_data:
-                return ToolResult(
-                    content=[{"type": "text", "text": f"Location '{location}' not found"}],
-                    isError=True
-                )
-            
-            lat = geo_data[0]["lat"]
-            lon = geo_data[0]["lon"]
-            
-            # Get weather alerts using One Call API
-            alerts_url = f"{self.onecall_url}/onecall"
-            params = {
-                "lat": lat,
-                "lon": lon,
-                "appid": self.api_key,
-                "exclude": "current,minutely,hourly,daily"  # Only get alerts
-            }
-            
-            response = await client.get(alerts_url, params=params)
-            response.raise_for_status()
-            data = response.json()
-        
-        alerts = data.get("alerts", [])
-        
-        if not alerts:
-            return ToolResult(content=[{"type": "text", "text": f"No weather alerts for {location}"}])
-        
-        result_text = f"Weather alerts for {location}:\n\n"
-        for alert in alerts:
-            result_text += f"Alert: {alert['event']}\n"
-            result_text += f"Description: {alert['description']}\n"
-            result_text += f"Start: {alert['start']}\n"
-            result_text += f"End: {alert['end']}\n\n"
-        
-        return ToolResult(content=[{"type": "text", "text": result_text}])

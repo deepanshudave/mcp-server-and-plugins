@@ -37,11 +37,17 @@ def setup_logging() -> None:
     """Set up logging configuration."""
     log_level = get_env_var("LOG_LEVEL", "INFO")
     
+    # Use absolute path to logs directory
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    logs_dir = os.path.join(project_root, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+    log_file = os.path.join(logs_dir, "mcp-server.log")
+    
     logging.basicConfig(
         level=getattr(logging, log_level.upper()),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(),
-            logging.FileHandler("logs/mcp-server.log")
+            logging.FileHandler(log_file)
         ]
     )

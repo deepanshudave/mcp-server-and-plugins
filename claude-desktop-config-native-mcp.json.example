@@ -1,0 +1,8 @@
+{
+    "mcpServers": {
+      "weather-server": {
+        "command": "<PATH_TO_CODEBASE>/mcp-server-and-plugins/mcp-server-env/bin/python",
+        "args": ["-m", "src.mcp_server"]
+      }
+    }
+}

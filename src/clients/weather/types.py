@@ -9,7 +9,6 @@ class WeatherConfig(BaseModel):
     api_key: str
     base_url: str
     geo_url: str
-    onecall_url: str
 
 
 class WeatherData(BaseModel):
@@ -29,7 +28,3 @@ class WeatherForecast(BaseModel):
     forecasts: List[Dict[str, Any]]
 
 
-class WeatherAlert(BaseModel):
-    """Weather alert data structure."""
-    location: str
-    alerts: List[Dict[str, Any]]

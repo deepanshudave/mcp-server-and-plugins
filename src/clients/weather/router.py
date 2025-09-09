@@ -66,24 +66,3 @@ async def get_weather_forecast(location: str, days: int = 3):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@weather_router.post("/alerts")
-async def get_weather_alerts(location: str):
-    """Get weather alerts for a location."""
-    if not weather_client:
-        raise HTTPException(status_code=500, detail="Weather client not initialized")
-    
-    try:
-        result = await weather_client.execute_tool("get_weather_alerts", {
-            "location": location
-        })
-        
-        if result.isError:
-            raise HTTPException(status_code=400, detail=result.content[0]["text"])
-        
-        return {
-            "tool": "get_weather_alerts",
-            "result": result.content[0]["text"] if result.content else "No result"
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))

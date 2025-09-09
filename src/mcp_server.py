@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from mcp.server.models import InitializationOptions
 from mcp.server import NotificationOptions, Server
+from mcp.server.stdio import stdio_server
 from mcp.types import (
     Resource,
     Tool,
@@ -140,8 +141,6 @@ class PureMCPServer:
             print("Starting MCP server...", file=sys.stderr)
             
             # Use stdio transport for MCP
-            from mcp.server.stdio import stdio_server
-            
             async with stdio_server() as (read_stream, write_stream):
                 await self.server.run(
                     read_stream,
@@ -158,13 +157,21 @@ class PureMCPServer:
                 
         except Exception as e:
             print(f"Server error: {e}", file=sys.stderr)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
             raise
 
 
 async def main():
     """Main entry point for MCP server."""
-    server = PureMCPServer()
-    await server.run()
+    try:
+        server = PureMCPServer()
+        await server.run()
+    except Exception as e:
+        print(f"Main error: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        raise
 
 
 if __name__ == "__main__":
